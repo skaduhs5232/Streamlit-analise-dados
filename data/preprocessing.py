@@ -1,3 +1,5 @@
+"""Funções de pré-processamento de dados."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,22 +9,11 @@ import kagglehub
 import numpy as np
 import pandas as pd
 
-DATASET_ID = "downshift/city-bike-travels-dataset"
-RAW_FILENAME = "city_bike_travels.csv"
-OUTPUT_PATH = Path("data/processed_city_bike_trips.parquet")
-
-DAY_NAME_MAP = {
-    "Monday": "Segunda",
-    "Tuesday": "Terça",
-    "Wednesday": "Quarta",
-    "Thursday": "Quinta",
-    "Friday": "Sexta",
-    "Saturday": "Sábado",
-    "Sunday": "Domingo",
-}
+from config import DATASET_ID, RAW_FILENAME, OUTPUT_PATH, DAY_NAME_MAP
 
 
 def categorize_period(hour: int) -> str:
+    """Categoriza a hora do dia em período."""
     if 0 <= hour < 6:
         return "Madrugada"
     if 6 <= hour < 12:
@@ -33,10 +24,12 @@ def categorize_period(hour: int) -> str:
 
 
 def _coerce_numeric(series: pd.Series) -> pd.Series:
+    """Converte série para numérico com tratamento de erros."""
     return pd.to_numeric(series, errors="coerce")
 
 
 def download_raw_file() -> Path:
+    """Baixa o dataset do Kaggle e retorna o caminho do arquivo CSV."""
     dataset_dir = Path(kagglehub.dataset_download(DATASET_ID))
     csv_path = dataset_dir / RAW_FILENAME
     if not csv_path.exists():
@@ -47,6 +40,7 @@ def download_raw_file() -> Path:
 
 
 def _enrich(df: pd.DataFrame) -> pd.DataFrame:
+    """Enriquece o DataFrame com features calculadas."""
     df = df.copy()
     df["departure_time"] = pd.to_datetime(df["departure_time"], errors="coerce", utc=True)
     df["return_time"] = pd.to_datetime(df["return_time"], errors="coerce", utc=True)
@@ -100,6 +94,7 @@ def _enrich(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def preprocess_city_bike_trips(save_to: Optional[Path] = OUTPUT_PATH) -> pd.DataFrame:
+    """Processa o dataset completo de viagens de bicicleta."""
     csv_path = download_raw_file()
     dtype_map = {
         "departure_station_id": "Int64",
