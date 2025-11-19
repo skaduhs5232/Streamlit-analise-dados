@@ -106,7 +106,7 @@ def main() -> None:
                     "departure_station_name", "return_station_name",
                     "distance_km", "trip_minutes", "avg_speed_kmh", "time_period",
                 ]
-            ],
+            ].head(50),
             use_container_width=True,
         )
 

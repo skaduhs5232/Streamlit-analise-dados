@@ -44,11 +44,15 @@ def hourly_heatmap(df: pd.DataFrame) -> alt.Chart:
 
 
 def duration_histogram(df: pd.DataFrame) -> alt.Chart:
-    """Distribuição de densidade das durações de viagem."""
     sampled = limit_rows(df)
+
     return (
         alt.Chart(sampled)
-        .transform_density("trip_minutes", as_=["trip_minutes", "densidade"], extent=[0, safe_max(sampled["trip_minutes"], default=1.0)])
+        .transform_density(
+            "trip_minutes",
+            as_=["trip_minutes", "densidade"],
+            extent=[0, 80]  
+        )
         .mark_area(opacity=0.6)
         .encode(
             x=alt.X("trip_minutes:Q", title="Duração da viagem (min)"),
@@ -62,12 +66,18 @@ def duration_histogram(df: pd.DataFrame) -> alt.Chart:
     )
 
 
+
 def distance_distribution(df: pd.DataFrame) -> alt.Chart:
     """Distribuição de densidade das distâncias percorridas."""
     sampled = limit_rows(df)
+
     return (
         alt.Chart(sampled)
-        .transform_density("distance_km", as_=["distance_km", "densidade"], extent=[0, safe_max(sampled["distance_km"], default=1.0)])
+        .transform_density(
+            "distance_km",
+            as_=["distance_km", "densidade"],
+            extent=[0, 10]  
+        )
         .mark_area(opacity=0.6, color="#3a86ff")
         .encode(
             x=alt.X("distance_km:Q", title="Distância percorrida (km)"),
@@ -79,3 +89,4 @@ def distance_distribution(df: pd.DataFrame) -> alt.Chart:
         )
         .properties(height=260, title="Distribuição das distâncias")
     )
+
