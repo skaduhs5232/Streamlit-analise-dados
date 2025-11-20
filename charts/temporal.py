@@ -3,6 +3,7 @@
 import altair as alt
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 from config import MAX_ROWS_SCATTER
 from utils.helpers import limit_rows, safe_max
@@ -131,3 +132,41 @@ def trips_vs_duration(df: pd.DataFrame) -> alt.Chart:
         .resolve_scale(y="independent")
         .properties(height=260, title="Volume de viagens por duração")
     )
+
+
+def metrics_3d_scatter(df: pd.DataFrame) -> go.Figure:
+    """Gráfico de dispersão 3D: Duração x Distância x Velocidade."""
+    sample = limit_rows(df, max_rows=MAX_ROWS_SCATTER)
+    
+    fig = go.Figure(data=[go.Scatter3d(
+        x=sample['trip_minutes'],
+        y=sample['distance_km'],
+        z=sample['avg_speed_kmh'],
+        mode='markers',
+        marker=dict(
+            size=4,
+            color=sample['avg_speed_kmh'],
+            colorscale='Viridis',
+            opacity=0.7,
+            colorbar=dict(title="Velocidade (km/h)")
+        ),
+        text=sample['time_period'],
+        hovertemplate=(
+            "<b>Duração:</b> %{x:.1f} min<br>" +
+            "<b>Distância:</b> %{y:.2f} km<br>" +
+            "<b>Velocidade:</b> %{z:.1f} km/h<br>" +
+            "<b>Período:</b> %{text}<extra></extra>"
+        )
+    )])
+
+    fig.update_layout(
+        title='Análise 3D: Duração vs Distância vs Velocidade',
+        scene=dict(
+            xaxis_title='Duração (min)',
+            yaxis_title='Distância (km)',
+            zaxis_title='Velocidade (km/h)'
+        ),
+        margin=dict(l=0, r=0, b=0, t=40),
+        height=500
+    )
+    return fig

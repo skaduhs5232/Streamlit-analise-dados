@@ -4,8 +4,8 @@ import altair as alt
 import streamlit as st
 
 from charts.patterns import distance_distribution, duration_histogram, hourly_heatmap
-from charts.stations import avg_duration_by_station, station_flow, top_routes, top_stations
-from charts.temporal import distance_vs_duration, trips_over_time, trips_vs_duration
+from charts.stations import avg_duration_by_station, combined_station_stats, route_sankey, station_flow, top_routes, top_stations
+from charts.temporal import distance_vs_duration, metrics_3d_scatter, trips_over_time, trips_vs_duration
 from data.data_loader import load_data
 from utils.filters import apply_filters
 
@@ -75,7 +75,7 @@ def main() -> None:
 
     with tab1:
         st.altair_chart(trips_over_time(filtered), use_container_width=True)
-        st.altair_chart(distance_vs_duration(filtered), use_container_width=True)
+        st.plotly_chart(metrics_3d_scatter(filtered), use_container_width=True)
         st.altair_chart(trips_vs_duration(filtered), use_container_width=True)
 
     with tab2:
@@ -85,18 +85,13 @@ def main() -> None:
         cols[1].altair_chart(duration_histogram(filtered), use_container_width=True)
 
     with tab3:
-        cols = st.columns(2)
-        cols[0].altair_chart(top_stations(filtered, "departure_station_name", "Saída"), use_container_width=True)
-        cols[1].altair_chart(top_stations(filtered, "return_station_name", "Chegada"), use_container_width=True)
-
-        st.markdown("---")
-
-        c1, c2 = st.columns(2)
-        c1.altair_chart(top_routes(filtered), use_container_width=True)
-        c2.altair_chart(station_flow(filtered), use_container_width=True)
+        st.altair_chart(combined_station_stats(filtered), use_container_width=True)
 
         st.markdown("---")
         st.altair_chart(avg_duration_by_station(filtered), use_container_width=True)
+
+        st.markdown("---")
+        st.plotly_chart(route_sankey(filtered), use_container_width=True)
 
     with st.expander("Prévia dos dados filtrados"):
         st.dataframe(
